@@ -22,13 +22,7 @@
 
  *
 
- *  
- *
-
-
-
-
-
+ *  Mixed Sound Light Controller
 
  *
 
@@ -36,13 +30,13 @@
 
 definition(
 
-    name: "Sonos Remote Control",
+    name: "Sound Light Remote Control",
 
     namespace: "smartthings",
 
-    author: "Juha Tanskanen",
+    author: "Yu-Sheng Chen",
 
-    description: "Control your Sonos system with Ikea SYMFONISK Sound Controller",
+    description: "Control your Sonos system and lights with Ikea SYMFONISK Sound Controller",
 
     category: "SmartThings Internal",
 
@@ -121,6 +115,20 @@ def buttonEvent(evt){
 }
 
 def handleCommand(command, value) {
+
+    def mode = state.mode
+    if (!mode) {
+        mode = "light"
+    }
+
+    switch (mode) {
+        case "sound":
+            break;
+        case "light":
+        default:
+            break;
+        
+    }
 
     if (command == "button") {
 
