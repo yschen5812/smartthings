@@ -117,24 +117,20 @@ def buttonEvent(evt){
 def handleCommand(command, value) {
 
     def mode = state.mode
+
     if (!mode) {
+
         mode = "light"
+
     }
 
     if (mode == "sound" && speakers.size == 0) {
+
         return
+
     }
 
     def mainSpeaker = speakers[0]
-
-    switch (mode) {
-        case "sound":
-            break;
-        case "light":
-        default:
-            break;
-        
-    }
 
     if (command == "button") {
 
@@ -148,7 +144,7 @@ def handleCommand(command, value) {
 
                 if (mode == "light") {
 
-                    state.lightScene += 1
+                    changeScene()
 
                 } else { // mode is sound
 
@@ -232,4 +228,41 @@ def setBrightness() {
  
     lights*.setLevel(value as Integer)
 
+}
+
+def changeScene(){
+
+    def scene = state.lightScene
+
+    if (scene == 2) {
+
+        scene = 0
+
+    } else {
+
+        scene += 1
+
+    }
+
+    updateLightsStatus(scene)
+
+    state.lightScene = scene
+
+}
+
+def updateLightStatus(scene){
+    switch (scene) {
+
+        lights*.on()
+
+        case 0:
+            break
+
+        case 1:
+            break
+
+        case 2:
+            break
+
+    }
 }
