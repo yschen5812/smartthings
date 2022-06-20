@@ -221,12 +221,10 @@ def setVolume() {
 
 def setBrightness() {
 
-    lights.each {
-        Integer currentLevel = it.currentValue("level")
-        log.debug "Set level of bulb $currentLevel -> $value"
-    }
+    def level = levelDevice.currentValue("level")
+    log.debug "Set level of bulb $level
  
-    lights*.setLevel(value as Integer)
+    lights*.setLevel(level)
 
 }
 
