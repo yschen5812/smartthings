@@ -244,16 +244,17 @@ def changeScene(){
 
     }
 
-    updateLightsStatus(scene)
+    updateLightStatus(scene)
 
     state.lightScene = scene
 
 }
 
 def updateLightStatus(scene){
-    switch (scene) {
 
-        lights*.on()
+    lights*.on()
+
+    switch (scene) {
 
         case 0:
             break
