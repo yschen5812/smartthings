@@ -181,6 +181,8 @@ def handleCommand(command, value) {
 
         } else if (mode == "light") {
 
+            setBrightness()
+
         }
 
     }
@@ -219,4 +221,15 @@ def setVolume() {
     log.debug "Set volume $currentVolume -> $newVolume"
 
     speakers*.setVolume(newVolume)
+}
+
+def setBrightness() {
+
+    lights.each {
+        Integer currentLevel = it.currentValue("level")
+        log.debug "Set level of bulb $currentLevel -> $value"
+    }
+ 
+    lights*.setLevel(value as Integer)
+
 }
