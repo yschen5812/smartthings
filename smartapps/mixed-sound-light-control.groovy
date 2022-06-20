@@ -50,13 +50,13 @@ preferences {
 
     section("Select your devices") {
 
-        input "buttonDevice", "capability.button", title: "Sonos Control", multiple: false, required: true
+        input "buttonDevice", "capability.button", title: "Mode Selector", multiple: false, required: true
 
-        input "levelDevice", "capability.switchLevel", title: "Sonos Volume Control", multiple: false, required: true
+        input "levelDevice", "capability.switchLevel", title: "Level Control", multiple: false, required: true
 
-        input "sonos", "capability.audioVolume", title: "Sonos Master", multiple: false, required: true
+        input "speakers", "capability.audioVolume", title: "Sonos Speakers", multiple: true, required: true
 
-        input "sonosSlaves", "capability.audioVolume", title: "Sonos Slaves", multiple: true, required: false
+        input "lights", "capability.light", title: "Lights", multiple: true, required: true
 
     }
 
@@ -121,6 +121,12 @@ def handleCommand(command, value) {
         mode = "light"
     }
 
+    if (mode == "sound" && speakers.size == 0) {
+        return
+    }
+
+    def mainSpeaker = speakers[0]
+
     switch (mode) {
         case "sound":
             break;
@@ -138,23 +144,15 @@ def handleCommand(command, value) {
 
             case "pushed":
 
-                log.debug "Button clicked - Play/Pause"
+                log.debug "Button clicked"
 
-                def currentStatus = sonos.currentValue("playbackStatus")
+                if (mode == "light") {
 
-                log.debug "Sonos status $currentStatus"
+                    state.lightScene += 1
 
-                if (currentStatus == "playing") {
+                } else { // mode is sound
 
-                    sonos.pause()
-
-                    sonosSlaves*.pause()
-
-                } else {
-
-                    sonos.play()
-
-                    sonosSlaves*.play()
+                    state.mode = "light"
 
                 }
 
@@ -162,62 +160,63 @@ def handleCommand(command, value) {
 
             case "pushed_2x":
 
-                log.debug "Button clicked twice - Next Track"
 
-                sonos.nextTrack()
+                log.debug "Button clicked twice"
 
-                sonosSlaves*.nextTrack()
+                speakers*.nextTrack()
 
                 break
 
-            case "pushed_3x":
-
-                log.debug "Button clicked treble - Previous Track"
-
-                sonos.previousTrack()
-
-                sonosSlaves*.previousTrack()
-
+             case "push_3x":
+                // nothing assigned yet
                 break
 
         }
 
-    } else {
+    } else { // level?
 
-        Integer currentVolume = sonos.currentValue("volume")
+        if (mode == "sound") {
 
-        Integer change = value.toInteger() - currentVolume
+            setVolume()
 
-        Integer newVolume = currentVolume + change
-
-        // This is a workaround to prevent accidental "too big volume change" if Sonos device
-
-        // was controlled through some other device
-
-        if (Math.abs(change) > 20) {
-
-            if (Math.abs(change) > 50) {
-
-                change /= 4
-
-            } else if (Math.abs(change) > 25) {
-
-                change /= 2
-
-            }
-
-            newVolume = currentVolume + change
-
-            levelDevice.setLevel(newVolume)
+        } else if (mode == "light") {
 
         }
-
-        log.debug "Set volume $currentVolume -> $newVolume"
-
-        sonos.setVolume(newVolume)
-
-        sonosSlaves*.setVolume(newVolume)
 
     }
 
+}
+
+def setVolume() {
+    Integer currentVolume = mainSpeaker.currentValue("volume")
+
+    Integer change = value.toInteger() - currentVolume
+
+    Integer newVolume = currentVolume + change
+
+    // This is a workaround to prevent accidental "too big volume change" if Sonos device
+
+    // was controlled through some other device
+
+    if (Math.abs(change) > 20) {
+
+        if (Math.abs(change) > 50) {
+
+            change /= 4
+
+        } else if (Math.abs(change) > 25) {
+
+            change /= 2
+
+        }
+
+        newVolume = currentVolume + change
+
+        levelDevice.setLevel(newVolume)
+
+    }
+
+    log.debug "Set volume $currentVolume -> $newVolume"
+
+    speakers*.setVolume(newVolume)
 }
