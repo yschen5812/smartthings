@@ -124,13 +124,11 @@ def handleCommand(command, value) {
 
     }
 
-    if (mode == "sound" && speakers.size == 0) {
+    if (mode == "sound" && speakers.size() == 0) {
 
         return
 
     }
-
-    def mainSpeaker = speakers[0]
 
     if (command == "button") {
 
@@ -159,7 +157,7 @@ def handleCommand(command, value) {
 
                 log.debug "Button clicked twice"
 
-                speakers*.nextTrack()
+                state.mode = "sound"
 
                 break
 
@@ -173,7 +171,7 @@ def handleCommand(command, value) {
 
         if (mode == "sound") {
 
-            setVolume()
+            setVolume(value)
 
         } else if (mode == "light") {
 
@@ -185,7 +183,10 @@ def handleCommand(command, value) {
 
 }
 
-def setVolume() {
+def setVolume(value) {
+
+    def mainSpeaker = speakers[0]
+    
     Integer currentVolume = mainSpeaker.currentValue("volume")
 
     Integer change = value.toInteger() - currentVolume
@@ -222,7 +223,7 @@ def setVolume() {
 def setBrightness() {
 
     def level = levelDevice.currentValue("level")
-    log.debug "Set level of bulb $level
+    log.debug "Set level of bulb $level"
  
     lights*.setLevel(level)
 
